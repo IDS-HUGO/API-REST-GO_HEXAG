@@ -22,7 +22,14 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 	case http.MethodPut:
 		var user map[string]interface{}
 		json.NewDecoder(r.Body).Decode(&user)
-		id, _ := strconv.Atoi(user["id"].(string))
+
+		idFloat, ok := user["id"].(float64)
+		if !ok {
+			http.Error(w, "Invalid ID format", http.StatusBadRequest)
+			return
+		}
+		id := int(idFloat)
+
 		userService.UpdateUser(int32(id), user["username"].(string), user["email"].(string))
 		w.WriteHeader(http.StatusOK)
 	case http.MethodDelete:
